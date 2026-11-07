@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Squeekchain AI Wheel Duel</title>
+    <style>
+        body {
+            background: #0d1117;
+            color: #c9d1d9;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            flex-direction: column;
+        }
+        .game-card {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 12px;
+            padding: 30px;
+            max-width: 450px;
+            width: 100%;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+            text-align: center;
+            box-sizing: border-box;
+        }
+        h1 { color: #f0883e; margin-top: 0; font-size: 26px; }
+        .subtitle { color: #8b949e; font-size: 14px; margin-bottom: 20px; }
+        
+        #authSection { display: block; padding: 20px 0; }
+        .btn-connect {
+            background: #238636;
+            color: #fff;
+            border: none;
+            padding: 14px 28px;
+            font-size: 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.2s;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .btn-connect:hover { background: #2ea043; }
+        .wallet-icons { margin-top: 15px; font-size: 12px; color: #8b949e; }
+
+        #gameSection { display: none; }
+        .wallet-badge {
+            background: #1f242c;
+            border: 1px solid #388bfd;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            color: #58a6ff;
+            display: inline-block;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+        .wheel-area {
+            position: relative;
+            width: 160px;
+            height: 160px;
+            margin: 0 auto 20px;
+        }
+        .wheel {
+            width: 100%;
+            height: 100%;
+            border: 6px dashed #f0883e;
+            border-radius: 50%;
+            transition: transform 0.1s linear;
+        }
+        .hamster { position: absolute; top: 55px; left: 55px; font-size: 45px; }
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+        .stat-box { background: #21262d; border: 1px solid #30363d; padding: 12px; border-radius: 8px; }
+        .stat-box small { color: #8b949e; display: block; margin-bottom: 4px; }
+        .stat-box span { font-weight: bold; font-size: 18px; color: #58a6ff; }
+        .input-group { display: flex; gap: 10px; justify-content: center; margin-bottom: 15px; }
+        input { background: #0d1117; border: 1px solid #30363d; color: #fff; padding: 10px; border-radius: 6px; width: 100px; text-align: center; font-size: 16px; }
+        .btn-game { background: #f0883e; color: #0d1117; border: none; padding: 10px 20px; font-size: 16px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        .btn-game:hover { background: #ff9f55; }
+        .ai-status { background: #1f1b2c; border: 1px solid #6f42c1; padding: 10px; border-radius: 6px; font-size: 14px; margin-bottom: 15px; color: #d4bbff; }
+        #log { font-weight: bold; margin-top: 15px; min-height: 20px; }
+
+        .dev-badge { margin-top: 20px; background: #0d1117; border: 1px dashed #30363d; border-radius: 8px; padding: 12px; font-size: 12px; text-align: left; }
+        .dev-badge div { margin-bottom: 4px; color: #8b949e; }
+        .dev-badge strong { color: #f0883e; }
+        .dev-badge a { color: #58a6ff; text-decoration: none; }
+        .dev-badge a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+
+<div class="game-card">
+    <h1>Squeek AI Duel</h1>
+    <div class="subtitle">IMD Swarm Ecosystem App</div>
+
+    <div id="authSection">
+        <p>Connect your Web3 wallet to verify your Squeekchain profile and start the duel.</p>
+        <button id="connectBtn" class="btn-connect" onclick="connectWallet()">Connect Wallet</button>
+        <div class="wallet-icons">Compatible with <b>Rabby Wallet</b> & <b>MetaMask</b></div>
+        <p id="authError" style="color: #f85149; margin-top: 15px; font-size: 14px;"></p>
+    </div>
+
+    <div id="gameSection">
+        <div class="wallet-badge" id="walletAddress">Connected: 0x...</div>
+        <div class="wheel-area"><div class="wheel" id="wheel"></div><div class="hamster">🐹</div></div>
+        <div class="stats-grid">
+            <div class="stat-box"><small>Current Block</small><span id="blockNum">#61042</span></div>
+            <div class="stat-box"><small>Wheel Speed</small><span id="currentSpeed">0 RPM</span></div>
+        </div>
+        <div class="ai-status" id="aiStatus">🤖 <b>Argon AI Opponent:</b> Watching... my prediction locks at round end.</div>
+        <div class="input-group">
+            <input type="number" id="playerPredict" placeholder="RPM" min="10" max="100">
+            <button class="btn-game" onclick="lockPrediction()">Lock Bet</button>
+        </div>
+        <div id="log"></div>
+    </div>
+
+    <div class="dev-badge">
+        <div><strong>Verified Creator:</strong> <a href="https://x.com" target="_blank">@bkrnaltn</a></div>
+        <div style="font-family: monospace; font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+            <strong>Registered Wallet:</strong> 0x0bE74DbFfBF3F2594d9Cc39d2731CE6Ac502e300
+        </div>
+    </div>
+</div>
+
+<script>
+    let userWallet = null;
+    let rotation = 0;
+    let speed = 40;
+    let block = 61042;
+    let playerPrediction = null;
+    let aiPrediction = null;
+
+    async function connectWallet() {
+        const connectBtn = document.getElementById('connectBtn');
+        const authError = document.getElementById('authError');
+        
+        const provider = window.ethereum || (window.providers && window.providers.ethereum);
+        
+        if (provider) {
+            try {
+                connectBtn.innerText = "Connecting...";
+                authError.innerText = "";
+                
+                const accounts = await provider.request({ method: 'eth_requestAccounts' });
+                userWallet = accounts[0]; 
+                
+                let walletType = "Web3 Wallet";
+                if (provider.isRabby) walletType = "Rabby";
+                else if (provider.isMetaMask) walletType = "MetaMask";
+
+                document.getElementById('authSection').style.display = 'none';
+                document.getElementById('gameSection').style.display = 'block';
+                document.getElementById('walletAddress').innerText = `${walletType}: ${userWallet.substring(0,6)}...${userWallet.substring(userWallet.length-4)}`;
+                
+                startGameLoop();
+            } catch (error) {
+                connectBtn.innerText = "Connect Wallet";
+                authError.innerText = "Connection rejected by user.";
+            }
+        } else {
+            authError.innerText = "Please open this site inside Rabby/MetaMask browser or install the extension.";
+        }
+    }
+
+    setInterval(() => { if(userWallet) { rotation += (speed / 8); document.getElementById('wheel').style.transform = `rotate(${rotation}deg)`; } }, 50);
+
+    function startGameLoop() {
+        setInterval(() => {
+            block++;
+            document.getElementById('blockNum').innerText = "#" + block;
+            let finalSpeed = Math.floor(Math.random() * 70) + 20; 
+            speed = finalSpeed;
+            document.getElementById('currentSpeed').innerText = finalSpeed + " RPM";
+            aiPrediction = finalSpeed + (Math.floor(Math.random() * 14) - 7);
+            document.getElementById('aiStatus').innerHTML = `🤖 <b>Argon AI Predict:</b> Last round guess was <b>${aiPrediction} RPM</b>.`;
+            evaluateRound(finalSpeed);
+        }, 6000);
+    }
+
+    function lockPrediction() {
+        const val = document.getElementById('playerPredict').value;
+        if(!val || val < 10 || val > 100) return alert("Enter RPM between 10-100.");
+        playerPrediction = parseInt(val);
+        document.getElementById('log').style.color = "#e3b341";
+        document.getElementById('log').innerText = `Prediction locked for Block #${block + 1}!`;
+    }
+
+    function evaluateRound(actualSpeed) {
+        if (playerPrediction !== null) {
+            let playerDiff = Math.abs(actualSpeed - playerPrediction);
+            let aiDiff = Math.abs(actualSpeed - aiPrediction);
+            let resultText = `Actual Speed: ${actualSpeed} RPM. `;
+            if (playerDiff < aiDiff) { document.getElementById('log').style.color = "#56d364"; document.getElementById('log').innerText = resultText + `🎉 You beat the AI!`; }
+            else if (playerDiff > aiDiff) { document.getElementById('log').style.color = "#f85149"; document.getElementById('log').innerText = resultText + `❌ AI Wins!`; }
+            else { document.getElementById('log').style.color = "#58a6ff"; document.getElementById('log').innerText = resultText + `🤝 Tie!`; }
+            playerPrediction = null;
+        }
+    }
+</script>
+</body>
+</html>
